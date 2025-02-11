@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Sistema de Órdenes de Pizza</title>
+	<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+	<h1>Sistema de Órdenes de Pizza</h1>
+	<fieldset class="settings">
+		<legend>Configuracion:</legend>
+		<div class="vale-range">
+			<label for="startVale">Vale Inicial:</label>
+			<input type="number" id="startVale" min="1">
+			<label for="endVale">Vale Final:</label>
+			<input type="number" id="endVale" min="1">
+			<button id="setValeRange" class="settingsButtons">Establecer Rango</button>
+		</div>
+
+		<div class="action-buttons">
+			<button id="pdfButton" class="settingsButtons">Guardar PDF</button>
+			<button id="printOrderButton" class="settingsButtons">Imprimir Orden</button>
+			<button id="financeButton" class="settingsButtons">Ver Finanzas</button>
+			<button id="manageFlavorsButton" class="settingsButtons">Gestionar Sabores</button>
+			<div id="flavorModal" class="modal">
+				<div class="modal-content">
+					<span class="close">&times;</span>
+					<h2>Gestionar Sabores y Precios</h2>
+					<div id="flavorManager"></div>
+				</div>
+			</div>
+			<div id="currentDate"></div>
+		</div>
+		<div>
+			<label class="valeNumber">Número de Vale:</label>
+			<span id="valeNumber">0001</span>
+		</div>
+	</fieldset>
+	<div class="container">
+		<div class="left-panel">
+			<form id="orderForm">
+				<div>
+					<label for="customerType">Tipo de Cliente:</label>
+					<select id="customerType" required>
+						<option value="mesa">Mesa</option>
+						<option value="llevar">Llevar</option>
+						<option value="didi">Didi</option>
+					</select>
+				</div>
+				<div>
+					<label for="customerNumber" id="customerNumberLabel">Número de Cliente/Mesa:</label>
+					<input type="text" id="customerNumber" required>
+				</div>
+				<div id="deliveryContainer" style="display: none;">
+					<label for="deliveryType">Tipo de Domicilio:</label>
+					<select id="deliveryType">
+						<option value="no">No</option>
+						<option value="cerca">Cerca</option>
+						<option value="medio">Medio</option>
+						<option value="lejos">Lejos</option>
+					</select>
+				</div>
+				<div id="separacion" class="separacion">
+					<label for="phone">Teléfono:
+						<input type="tel" id="phone"></label>
+					<label for="address">Dirección:
+						<input type="text" id="address"></label>
+				</div>
+				<table id="orderItems">
+					<thead>
+						<tr>
+							<th>Producto</th>
+							<th>Cantidad</th>
+							<th>Precio</th>
+							<th>Acciones</th>
+						</tr>
+					</thead>
+					<tbody></tbody>
+				</table>
+				<div id="products">
+					<button type="button" id="addPizza">Agregar Pizza</button>
+					<button type="button" id="addDrink">Agregar Bebida</button>
+					<button type="button" id="addDidi">Agregar Didi</button>
+				</div>
+				<fieldset id="payments">
+					<label for="paymentMethod">Método de Pago:</label>
+					<select id="paymentMethod" required>
+						<option value="efectivo">Efectivo</option>
+						<option value="daviplata">Daviplata</option>
+						<option value="nequi">Nequi</option>
+						<option value="qr">QR</option>
+						<option value="tarjeta">Tarjeta</option>
+					</select>
+					<div>
+						<label for="additionalAmount">Monto Adicional:</label>
+						<input type="number" id="additionalAmount" value="0">
+					</div>
+					<div>
+						<strong>Total: $<span id="totalAmount">0</span></strong>
+					</div>
+					<div>
+						<label for="voluntaryTip">Propina Voluntaria (10%):</label>
+						<input type="checkbox" id="voluntaryTip">
+					</div>
+					<button type="submit">Guardar Orden</button>
+				</fieldset>
+			</form>
+		</div>
+		<div class="right-panel">
+			<div id="orderList"></div>
+			<div id="orderPreview" class="order-preview"></div>
+		</div>
+	</div>
+	<div id="editModal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h2>Editar Orden</h2>
+			<form id="editForm"></form>
+		</div>
+	</div>
+	<div id="dailyCounter" class="daily-counter"></div>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+	<script src="script.js"></script>
+</body>
+
+</html>
