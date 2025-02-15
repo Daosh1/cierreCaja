@@ -774,93 +774,78 @@ document.addEventListener("DOMContentLoaded", () => {
 	/////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////
 
-	// SECCIÓN 10: FUNCIONES FINANCIERAS Y DE GESTIÓN
+	// SECCIÓN 10: FUNCIONES FINANCIERAS Y GESTOR
 	////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////
 
 	function showFinances() {
-		const orders = JSON.parse(localStorage.getItem("orders")) || []
-		let efectivo = 0
-		let nequi = 0
-		let daviplata = 0
-		let qr = 0
-		let tarjeta = 0
-		let efectivoCount = 0
-		let nequiCount = 0
-		let daviplataCount = 0
-		let qrCount = 0
-		let tarjetaCount = 0
-		const didiCount = {
-			efectivo: 0,
-			nequi: 0,
-			daviplata: 0,
-			qr: 0,
-			tarjeta: 0,
-		}
+		const orders = JSON.parse(localStorage.getItem("orders")) || [];
+		let efectivo = 0, nequi = 0, daviplata = 0, qr = 0, tarjeta = 0;
+		let propinas = 0;
 
 		orders.forEach((order) => {
-			if (order.customerType === "didi") {
-				didiCount[order.paymentMethod]++
-			}
+			propinas += order.tip || 0;
 			switch (order.paymentMethod) {
-				case "efectivo":
-					efectivo += order.total
-					efectivoCount++
-					break
-				case "nequi":
-					nequi += order.total
-					nequiCount++
-					break
-				case "daviplata":
-					daviplata += order.total
-					daviplataCount++
-					break
-				case "qr":
-					qr += order.total
-					qrCount++
-					break
-				case "tarjeta":
-					tarjeta += order.total
-					tarjetaCount++
-					break
+				case "efectivo": efectivo += order.total; break;
+				case "nequi": nequi += order.total; break;
+				case "daviplata": daviplata += order.total; break;
+				case "qr": qr += order.total; break;
+				case "tarjeta": tarjeta += order.total; break;
 			}
-		})
+		});
 
-		let total = efectivo + nequi + daviplata + qr + tarjeta
+		const bancolombia = daviplata + qr;
+		const total = efectivo + bancolombia + nequi + tarjeta;
 
-		const financeReport = `
-            Finanzas Actuales:
-            Efectivo: $${formatCurrency(efectivo)} (${efectivoCount} órdenes)
-            Nequi: $${formatCurrency(nequi)} (${nequiCount} órdenes)
-            Daviplata: $${formatCurrency(daviplata)} (${daviplataCount} órdenes)
-            QR: $${formatCurrency(qr)} (${qrCount} órdenes)
-            Tarjeta: $${formatCurrency(tarjeta)} (${tarjetaCount} órdenes)
-            Total: $${formatCurrency(total)}
-            
-            Pedidos Didi:
-            Efectivo: ${didiCount.efectivo}
-            Nequi: ${didiCount.nequi}
-            Daviplata: ${didiCount.daviplata}
-            QR: ${didiCount.qr}
-            Tarjeta: ${didiCount.tarjeta}
-            Total Didi: ${didiCount.efectivo + didiCount.nequi + didiCount.daviplata + didiCount.qr + didiCount.tarjeta}
-            
-            Ingrese los montos a restar (compras), separados por comas:
-        `
+		const financeModal = document.createElement("div");
+		financeModal.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        width: 500px; max-width: 90%; font-family: Arial, sans-serif;
+    `;
 
-		const amountsToSubtract = prompt(financeReport)
-		if (amountsToSubtract !== null) {
-			const amounts = amountsToSubtract.split(",").map((amount) => Number.parseFloat(amount.trim()))
-			amounts.forEach((amount) => {
-				if (!isNaN(amount)) {
-					total -= amount
-				}
-			})
-			alert(`Nuevo total después de las restas: $${formatCurrency(total)}`)
-		}
+		financeModal.innerHTML = `
+        <h2 style="color: #2c3e50; margin-top: 0">💰 Reporte Financiero</h2>
+        
+        <div style="margin-bottom: 20px">
+            <h3 style="color: #34495e">Totales por Método</h3>
+            <table style="width: 100%; margin-bottom: 15px">
+                <tr><td>Efectivo:</td><td>$${formatCurrency(efectivo)}</td></tr>
+                <tr><td>Nequi:</td><td>$${formatCurrency(nequi)}</td></tr>
+                <tr><td>Daviplata:</td><td>$${formatCurrency(daviplata)}</td></tr>
+                <tr><td>QR:</td><td>$${formatCurrency(qr)}</td></tr>
+                <tr><td>Tarjeta:</td><td>$${formatCurrency(tarjeta)}</td></tr>
+                <tr style="border-top: 1px solid #eee"><td><strong>Bancolombia:</strong></td><td>$${formatCurrency(bancolombia)}</td></tr>
+                <tr><td><strong>Total General:</strong></td><td>$${formatCurrency(total)}</td></tr>
+                <tr><td>Propinas Voluntarias:</td><td>$${formatCurrency(propinas)}</td></tr>
+            </table>
+        </div>
+
+        <div style="margin-bottom: 20px">
+            <h3 style="color: #34495e">Ajustes</h3>
+            <input type="number" id="subtractAmount" placeholder="Monto a restar (ej: 5000)" 
+                   style="width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd">
+            <button onclick="applySubtractions()" 
+                    style="background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 5px">
+                Aplicar Ajustes
+            </button>
+        </div>
+
+        <!-- Aquí se mostrará el resultado después de aplicar ajustes -->
+        <div id="financeResult" style="display: none; text-align: center;"></div>
+
+        <button onclick="document.body.removeChild(this.parentElement)" 
+                style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-top: 10px">
+            Cerrar
+        </button>
+    `;
+
+		document.body.appendChild(financeModal);
 	}
 
+
+	// SECCION 10.1: Gestor de sabores
 	function manageFlavors() {
 		const flavorManager = document.getElementById("flavorManager")
 		if (!flavorManager) return;

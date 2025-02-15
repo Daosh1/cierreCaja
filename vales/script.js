@@ -28,6 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const flavorModal = document.getElementById("flavorModal")
 	const orderPreview = document.getElementById("orderPreview")
 
+
 	// SECCIÓN 2: INICIALIZACIÓN DE VARIABLES Y CARGA DE DATOS
 	let currentVale = 1
 	const pizzaPrices = JSON.parse(localStorage.getItem("pizzaPrices")) || {
@@ -231,29 +232,29 @@ document.addEventListener("DOMContentLoaded", () => {
 					orderElement.classList.add("paid")
 				}
 				orderElement.innerHTML = `
-          <p><strong>Orden #${order.valeNumber}</strong></p>
-          <p>Cliente: ${order.customerType} ${order.customerNumber}</p>
-          <p>Teléfono: ${order.phone}</p>
-          <p>Dirección: ${order.address}</p>
-          <p>Total: $${formatCurrency(order.total)}</p>
-          <p>Método de Pago: ${order.paymentMethod}</p>
-          ${order.deliveryType ? `<p>Domicilio: ${order.deliveryType}</p>` : ""}
-          <p>Estado: <span class="status-label status-${order.status}">${order.status}</span></p>
-          <h4>Productos:</h4>
-          <ul>
-              ${order.items.map((item) => `<li>${item.quantity}x ${item.item} ${item.flavor || ""} - $${formatCurrency(item.total)}</li>`).join("")}
-          </ul>
-          <div class="status-buttons">
-              <button class="status-button pending" data-index="${index}" data-status="pending">Pendiente</button>
-              <button class="status-button marchando" data-index="${index}" data-status="marchando">Marchando</button>
-              <button class="status-button completado" data-index="${index}" data-status="completado">Completado</button>
-              <button class="paid-button" data-index="${index}">${order.paid ? "Pagado" : "Marcar como Pagado"}</button>
-          </div>
-          <button class="edit-button" data-index="${index}">Editar</button>
-          <button class="delete-button" data-index="${index}">Eliminar Vale</button>
-          <button class="print-button" data-index="${index}">Imprimir</button>
-          ${!order.tip ? `<button class="add-tip-button" data-id="${order.valeNumber}">Agregar Propina Voluntaria</button>` : ""}
-        `
+                    <p><strong>Orden #${order.valeNumber}</strong></p>
+                    <p>Cliente: ${order.customerType} ${order.customerNumber}</p>
+                    <p>Teléfono: ${order.phone}</p>
+                    <p>Dirección: ${order.address}</p>
+                    <p>Total: $${formatCurrency(order.total)}</p>
+                    <p>Método de Pago: ${order.paymentMethod}</p>
+                    ${order.deliveryType ? `<p>Domicilio: ${order.deliveryType}</p>` : ""}
+                    <p>Estado: <span class="status-label status-${order.status}">${order.status}</span></p>
+                    <h4>Productos:</h4>
+                    <ul>
+                        ${order.items.map((item) => `<li>${item.quantity}x ${item.item} ${item.flavor || ""} - $${formatCurrency(item.total)}</li>`).join("")}
+                    </ul>
+                    <div class="status-buttons">
+                        <button class="status-button pending" data-index="${index}" data-status="pending">Pendiente</button>
+                        <button class="status-button marchando" data-index="${index}" data-status="marchando">Marchando</button>
+                        <button class="status-button completado" data-index="${index}" data-status="completado">Completado</button>
+                        <button class="paid-button" data-index="${index}">${order.paid ? "Pagado" : "Marcar como Pagado"}</button>
+                    </div>
+                    <button class="edit-button" data-index="${index}">Editar</button>
+                    <button class="delete-button" data-index="${index}">Eliminar Vale</button>
+                    <button class="print-button" data-index="${index}">Imprimir</button>
+					${!order.tip ? `<button class="add-tip-button" data-id="${order.valeNumber}">Agregar Propina Voluntaria</button>` : ""}
+					`
 				orderList.appendChild(orderElement)
 			})
 
@@ -489,7 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <p>Cliente: ${order.customerType} ${order.customerNumber}</p>
       <p>Teléfono: ${order.phone}</p>
       <p>Dirección: ${order.address}</p>
-      <p>Total: $${formatCurrency(order.total)}</p>
+      <p>Total: ${formatCurrency(order.total)}</p>
       <p>Método de Pago: ${order.paymentMethod}</p>
       ${order.deliveryType ? `<p>Domicilio: ${order.deliveryType}</p>` : ""}
       <p>Estado: Completado</p>
@@ -745,6 +746,14 @@ document.addEventListener("DOMContentLoaded", () => {
 		if (customerTypeSelect.value === "llevar") {
 			order.deliveryType = deliveryTypeSelect.value
 		}
+		// Propina voluntaria
+		order.deliveryType = deliveryTypeSelect.value
+		const voluntaryTip = document.getElementById("voluntaryTip").checked
+		if (voluntaryTip && customerTypeSelect.value === "mesa") {
+			const tipAmount = Math.round(order.total * 0.1)
+			order.tip = tipAmount
+			order.total += tipAmount
+		}
 
 		// Permitir guardar órdenes Didi sin requerir número de mesa o cliente
 		if (customerTypeSelect.value === "didi" || customerNumberInput.value.trim() !== "") {
@@ -795,90 +804,360 @@ document.addEventListener("DOMContentLoaded", () => {
 	/////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////
 
-	// SECCIÓN 10: FUNCIONES FINANCIERAS Y DE GESTIÓN
+	// SECCIÓN 10: FUNCIONES FINANCIERAS Y DE GESTIÓN reporte financiero
 	// Función para mostrar las finanzas
-	function showFinances() {
-		const orders = JSON.parse(localStorage.getItem("orders")) || []
-		let efectivo = 0
-		let nequi = 0
-		let daviplata = 0
-		let qr = 0
-		let tarjeta = 0
-		let efectivoCount = 0
-		let nequiCount = 0
-		let daviplataCount = 0
-		let qrCount = 0
-		let tarjetaCount = 0
-		const didiCount = {
-			efectivo: 0,
-			nequi: 0,
-			daviplata: 0,
-			qr: 0,
-			tarjeta: 0,
-		}
+	// Funciones en el ámbito global// Función para formatear moneda
+	function formatCurrency(value) {
+		let numValue = typeof value === "string" ? Number.parseFloat(value.replace(/[^\d.-]/g, "")) : Number.parseFloat(value);
+		if (isNaN(numValue)) return "0";
+		numValue = Math.round(numValue);
+		return numValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	}
 
-		orders.forEach((order) => {
-			if (order.customerType === "didi") {
-				didiCount[order.paymentMethod]++
-			}
-			switch (order.paymentMethod) {
-				case "efectivo":
-					efectivo += order.total
-					efectivoCount++
-					break
-				case "nequi":
-					nequi += order.total
-					nequiCount++
-					break
-				case "daviplata":
-					daviplata += order.total
-					daviplataCount++
-					break
-				case "qr":
-					qr += order.total
-					qrCount++
-					break
-				case "tarjeta":
-					tarjeta += order.total
-					tarjetaCount++
-					break
-			}
-		})
-
-		let total = efectivo + nequi + daviplata + qr + tarjeta
-
-		const financeReport = `
-      Finanzas Actuales:
-      Efectivo: $${formatCurrency(efectivo)} (${efectivoCount} órdenes)
-      Nequi: $${formatCurrency(nequi)} (${nequiCount} órdenes)
-      Daviplata: $${formatCurrency(daviplata)} (${daviplataCount} órdenes)
-      QR: $${formatCurrency(qr)} (${qrCount} órdenes)
-      Tarjeta: $${formatCurrency(tarjeta)} (${tarjetaCount} órdenes)
-      Total: $${formatCurrency(total)}
-      
-      Pedidos Didi:
-      Efectivo: ${didiCount.efectivo}
-      Nequi: ${didiCount.nequi}
-      Daviplata: ${didiCount.daviplata}
-      QR: ${didiCount.qr}
-      Tarjeta: ${didiCount.tarjeta}
-      Total Didi: ${didiCount.efectivo + didiCount.nequi + didiCount.daviplata + didiCount.qr + didiCount.tarjeta}
-      
-      Ingrese los montos a restar (compras), separados por comas:
-    `
-
-		const amountsToSubtract = prompt(financeReport)
-		if (amountsToSubtract !== null) {
-			const amounts = amountsToSubtract.split(",").map((amount) => Number.parseFloat(amount.trim()))
-			amounts.forEach((amount) => {
-				if (!isNaN(amount)) {
-					total -= amount
-				}
-			})
-			alert(`Nuevo total después de las restas: $${formatCurrency(total)}`)
+	function closeFinanceModal() {
+		console.log('Cerrando modal');
+		const modal = document.getElementById("financeModal");
+		if (modal) {
+			modal.style.display = "none";
 		}
 	}
 
+	function calcularTotal() {
+		console.log('Calculando total');
+		const orders = JSON.parse(localStorage.getItem("orders")) || [];
+		let efectivo = 0, nequi = 0, daviplata = 0, qr = 0, tarjeta = 0;
+		let efectivoCount = 0, nequiCount = 0, daviplataCount = 0, qrCount = 0, tarjetaCount = 0;
+		let propinas = 0;
+
+		orders.forEach((order) => {
+			let orderTotal = 0;
+			order.items.forEach((item) => {
+				let itemTotal = 0;
+				const quantity = Math.max(1, Number.parseInt(item.quantity) || 1);
+				if (item.type === 'pizza') {
+					itemTotal = quantity * (pizzaPrices[item.size] || 0);
+				} else if (item.type === 'drink') {
+					itemTotal = quantity * (drinkPrices[item.name.split(" - ")[0]] || 0);
+				} else if (item.type === 'didi') {
+					itemTotal = Number.parseFloat(item.value) || 0;
+				}
+				orderTotal += itemTotal;
+			});
+
+			if (order.customerType === 'llevar') {
+				orderTotal += deliveryPrices[order.deliveryType] || 0;
+			}
+
+			orderTotal += Number.parseFloat(order.additionalAmount) || 0;
+			propinas += Number.parseFloat(order.tip) || 0;
+
+			switch (order.paymentMethod) {
+				case "efectivo":
+					efectivo += orderTotal;
+					efectivoCount++;
+					break;
+				case "nequi":
+					nequi += orderTotal;
+					nequiCount++;
+					break;
+				case "daviplata":
+					daviplata += orderTotal;
+					daviplataCount++;
+					break;
+				case "qr":
+					qr += orderTotal;
+					qrCount++;
+					break;
+				case "tarjeta":
+					tarjeta += orderTotal;
+					tarjetaCount++;
+					break;
+			}
+		});
+
+		const bancolombia = daviplata + qr;
+		let total = efectivo + bancolombia + nequi + tarjeta;
+
+		// Restar los montos de inicio de caja
+		const inicioCajaEfectivo = parseFloat(document.getElementById("InCajaEfectivo").value) || 0;
+		const inicioCajaNequi = parseFloat(document.getElementById("InCajaNequi").value) || 0;
+		const inicioCajaDaviplata = parseFloat(document.getElementById("InCajaDaviplata").value) || 0;
+		const inicioCajaBancolombia = parseFloat(document.getElementById("InCajaBancolombia").value) || 0;
+
+		efectivo -= inicioCajaEfectivo;
+		nequi -= inicioCajaNequi;
+		daviplata -= inicioCajaDaviplata;
+		bancolombia -= inicioCajaBancolombia;
+
+		// Restar las compras
+		const compras = document.querySelectorAll('.compraInput');
+		let totalCompras = 0;
+		compras.forEach(compra => {
+			const montoCompra = parseFloat(compra.value) || 0;
+			totalCompras += montoCompra;
+		});
+
+		total -= totalCompras;
+
+		// Actualizar los totales en el DOM
+		document.getElementById("totalEfectivo").textContent = formatCurrency(efectivo);
+		document.getElementById("totalNequi").textContent = formatCurrency(nequi);
+		document.getElementById("totalDaviplata").textContent = formatCurrency(daviplata);
+		document.getElementById("totalQR").textContent = formatCurrency(qr);
+		document.getElementById("totalTarjeta").textContent = formatCurrency(tarjeta);
+		document.getElementById("totalBancolombia").textContent = formatCurrency(bancolombia);
+		document.getElementById("totalGeneral").textContent = formatCurrency(total);
+
+		// Actualizar los totales de Didi
+		document.getElementById("didiEfectivo").textContent = efectivoCount.toString();
+		document.getElementById("didiNequi").textContent = nequiCount.toString();
+		document.getElementById("didiDaviplata").textContent = daviplataCount.toString();
+		document.getElementById("didiQR").textContent = qrCount.toString();
+		document.getElementById("didiTarjeta").textContent = tarjetaCount.toString();
+		document.getElementById("totalDidi").textContent = formatCurrency(total);
+
+		// Mostrar el total ajustado
+		const adjustedTotalDiv = document.getElementById("adjustedTotal");
+		adjustedTotalDiv.style.display = "block";
+		adjustedTotalDiv.innerHTML = `Total Ajustado: $${formatCurrency(total)}`;
+	}
+
+	function agregarCampoCompra() {
+		const container = document.getElementById('comprasContainer');
+		const nuevoInput = document.createElement('input');
+		nuevoInput.type = 'number';
+		nuevoInput.className = 'compraInput';
+		nuevoInput.placeholder = 'Monto de compra';
+		container.appendChild(nuevoInput);
+		nuevoInput.focus();
+	}
+
+	function showFinances() {
+		const orders = JSON.parse(localStorage.getItem("orders")) || [];
+		let efectivo = 0, nequi = 0, daviplata = 0, qr = 0, tarjeta = 0;
+		let efectivoCount = 0, nequiCount = 0, daviplataCount = 0, qrCount = 0, tarjetaCount = 0;
+		let propinas = 0;
+
+		orders.forEach((order) => {
+			let orderTotal = 0;
+			order.items.forEach((item) => {
+				let itemTotal = 0;
+				const quantity = Math.max(1, Number.parseInt(item.quantity) || 1);
+				if (item.type === 'pizza') {
+					itemTotal = quantity * (pizzaPrices[item.size] || 0);
+				} else if (item.type === 'drink') {
+					itemTotal = quantity * (drinkPrices[item.name.split(" - ")[0]] || 0);
+				} else if (item.type === 'didi') {
+					itemTotal = Number.parseFloat(item.value) || 0;
+				}
+				orderTotal += itemTotal;
+			});
+
+			if (order.customerType === 'llevar') {
+				orderTotal += deliveryPrices[order.deliveryType] || 0;
+			}
+
+			orderTotal += Number.parseFloat(order.additionalAmount) || 0;
+			propinas += Number.parseFloat(order.tip) || 0;
+
+			switch (order.paymentMethod) {
+				case "efectivo":
+					efectivo += orderTotal;
+					efectivoCount++;
+					break;
+				case "nequi":
+					nequi += orderTotal;
+					nequiCount++;
+					break;
+				case "daviplata":
+					daviplata += orderTotal;
+					daviplataCount++;
+					break;
+				case "qr":
+					qr += orderTotal;
+					qrCount++;
+					break;
+				case "tarjeta":
+					tarjeta += orderTotal;
+					tarjetaCount++;
+					break;
+			}
+		});
+
+		const bancolombia = daviplata + qr;
+		const total = efectivo + bancolombia + nequi + tarjeta;
+
+		const modalHTML = `
+        <div id="financeModal" class="modal">
+            <div class="modal-content">
+                <h2>Reporte Financiero</h2>
+                
+                <div class="finance-section">
+                    <p>Efectivo: <span id="totalEfectivo">$${formatCurrency(efectivo)}</span> (${efectivoCount} órdenes)</p>
+                    <p>Nequi: <span id="totalNequi">$${formatCurrency(nequi)}</span> (${nequiCount} órdenes)</p>
+                    <p>Daviplata: <span id="totalDaviplata">$${formatCurrency(daviplata)}</span> (${daviplataCount} órdenes)</p>
+                    <p>QR: <span id="totalQR">$${formatCurrency(qr)}</span> (${qrCount} órdenes)</p>
+                    <p>Tarjeta: <span id="totalTarjeta">$${formatCurrency(tarjeta)}</span> (${tarjetaCount} órdenes)</p>
+                    <p class="total-line">Bancolombia: <span id="totalBancolombia">$${formatCurrency(bancolombia)}</span></p>
+                    <p class="total-line">Total: <span id="totalGeneral">$${formatCurrency(total)}</span></p>
+                </div>
+
+                <div class="finance-section">
+                    <h3>Inicio de caja:</h3>
+                    <p>Efectivo: <input type="number" id="InCajaEfectivo" placeholder="Monto base de caja"></p>
+                    <p>Nequi: <input type="number" id="InCajaNequi" placeholder="Monto base de caja"></p>
+                    <p>Daviplata: <input type="number" id="InCajaDaviplata" placeholder="Monto base de caja"></p>
+                    <p>Bancolombia: <input type="number" id="InCajaBancolombia" placeholder="Monto base de caja"></p>
+                </div>
+
+                <div class="finance-section">
+                    <h3>Compras:</h3>
+                    <div id="comprasContainer">
+                        <input type="number" class="compraInput" placeholder="Monto de compra">
+                    </div>
+                </div>
+
+                <div class="finance-section">
+                    <h3>Pedidos Didi:</h3>
+                    <p>Efectivo: <span id="didiEfectivo">${efectivoCount}</span></p>
+                    <p>Nequi: <span id="didiNequi">${nequiCount}</span></p>
+                    <p>Daviplata: <span id="didiDaviplata">${daviplataCount}</span></p>
+                    <p>QR: <span id="didiQR">${qrCount}</span></p>
+                    <p>Tarjeta: <span id="didiTarjeta">${tarjetaCount}</span></p>
+                    <p class="total-line">Total Didi: <span id="totalDidi">$${formatCurrency(total)}</span></p>
+                </div>
+
+                <div class="finance-actions">
+                    <button id="calcularTotalBtn" class="accept-button">Calcular Total</button>
+                    <button id="cerrarModalBtn" class="cancel-button">Cerrar</button>
+                </div>
+
+                <div id="adjustedTotal" style="display: none;"></div>
+            </div>
+        </div>
+    `;
+
+
+		// Agregar el modal al body
+		document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+		// Mostrar el modal
+		const modal = document.getElementById("financeModal");
+		modal.style.display = "block";
+
+		// Agregar event listeners después de que el modal esté en el DOM
+		document.getElementById('calcularTotalBtn').addEventListener('click', calcularTotal);
+		document.getElementById('cerrarModalBtn').addEventListener('click', closeFinanceModal);
+
+		// Configurar el evento para agregar nuevos campos de compra
+		document.getElementById('comprasContainer').addEventListener('keyup', function (e) {
+			if (e.key === 'Enter' && e.target.classList.contains('compraInput')) {
+				agregarCampoCompra();
+			}
+		});
+
+		// Configurar el evento de cierre al hacer clic fuera del modal
+		window.onclick = (event) => {
+			if (event.target === modal) {
+				closeFinanceModal();
+			}
+		};
+	}
+
+	// Estilos CSS para el modal
+	const styles = `
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #1a1a1a;
+        margin: 3% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        color: white;
+        border-radius: 8px;
+    }
+
+    .finance-section {
+        margin-bottom: 20px;
+    }
+
+    .finance-section p {
+        margin: 8px 0;
+    }
+
+    .total-line {
+        border-top: 1px solid #333;
+        padding-top: 8px;
+        margin-top: 8px;
+        font-weight: bold;
+    }
+
+    .finance-actions {
+        margin-top: 20px;
+    }
+
+    input[type="number"] {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        background-color: #333;
+        border: 1px solid #444;
+        color: white;
+        border-radius: 4px;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 10px;
+    }
+
+    .accept-button, .cancel-button {
+        flex: 1;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .accept-button {
+        background-color: #4a90e2;
+        color: white;
+    }
+
+    .cancel-button {
+        background-color: #666;
+        color: white;
+    }
+`;
+	const styleSheet = document.createElement("style");
+	styleSheet.innerText = styles;
+	document.head.appendChild(styleSheet);
+	// Función para mostrar el reporte financiero
+	function showFinanceReport() {
+		showFinances();
+	}
+
+	// Puedes llamar a esta función cuando quieras mostrar el reporte financiero
+	// Por ejemplo, podrías agregar un botón en tu HTML:
+	// <button onclick="showFinanceReport()">Mostrar Reporte Financiero</button>
+
+	// Función para mostrar el reporte cuando se necesite
+	//showFinances();
+
+
+	///////////////////////////////////////////7
 	// Función para gestionar sabores y precios
 	function manageFlavors() {
 		const flavorManager = document.getElementById("flavorManager")
@@ -1202,24 +1481,24 @@ document.addEventListener("DOMContentLoaded", () => {
 			updateTotal()
 		}
 	})
+	function addVoluntaryTip(orderId) {
+		const orders = JSON.parse(localStorage.getItem("orders")) || []
+		const orderIndex = orders.findIndex((order) => order.valeNumber === orderId)
+
+		if (orderIndex !== -1) {
+			const tipAmount = Number.parseFloat(prompt("Ingrese el valor de la propina:"))
+			if (!isNaN(tipAmount) && tipAmount >= 0) {
+				orders[orderIndex].tip = tipAmount
+				localStorage.setItem("orders", JSON.stringify(orders))
+				displayOrders()
+			} else {
+				alert("Por favor, ingrese un valor de propina válido.")
+			}
+		} else {
+			alert(`No se encontró la orden con el ID ${orderId}.`)
+		}
+	}
 
 	init()
 })
 
-function addVoluntaryTip(orderId) {
-	const orders = JSON.parse(localStorage.getItem("orders")) || []
-	const orderIndex = orders.findIndex((order) => order.valeNumber === orderId)
-
-	if (orderIndex !== -1) {
-		const tipAmount = Number.parseFloat(prompt("Ingrese el valor de la propina:"))
-		if (!isNaN(tipAmount) && tipAmount >= 0) {
-			orders[orderIndex].tip = tipAmount
-			localStorage.setItem("orders", JSON.stringify(orders))
-			displayOrders()
-		} else {
-			alert("Por favor, ingrese un valor de propina válido.")
-		}
-	} else {
-		alert(`No se encontró la orden con el ID ${orderId}.`)
-	}
-}
