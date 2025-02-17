@@ -181,7 +181,6 @@ th {
 	border: 1px solid #888;
 	width: 80%;
 	scroll-behavior: smooth;
-	max-width: 600px;
 }
 
 .modal-content h2 {
