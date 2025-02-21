@@ -1,5 +1,44 @@
+/* ================== MODO OSCURO Y CLARO AUTOMÁTICO ================== */
+:root {
+	/* Tema Claro */
+	--modal-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+	--modal-text: #2c3e50;
+	--modal-border: rgba(0, 0, 0, 0.1);
+	--input-bg: rgba(0, 0, 0, 0.05);
+	--input-border: rgba(0, 0, 0, 0.2);
+	--input-focus: #4a90e2;
+	--input-shadow: rgba(74, 144, 226, 0.5);
+	--accept-bg: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+	--accept-hover: linear-gradient(135deg, #3a7bc8 0%, #2868a6 100%);
+	--accept-shadow: rgba(74, 144, 226, 0.3);
+	--cancel-bg: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+	--cancel-hover: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+	--cancel-shadow: rgba(189, 195, 199, 0.3);
+	--close-hover: #4a90e2;
+}
+
+/* Cuando el usuario tiene el navegador en Modo Oscuro */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--modal-bg: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+		--modal-text: white;
+		--modal-border: rgba(255, 255, 255, 0.1);
+		--input-bg: rgba(255, 255, 255, 0.1);
+		--input-border: rgba(255, 255, 255, 0.3);
+		--input-focus: #66b3ff;
+		--input-shadow: rgba(102, 179, 255, 0.5);
+		--accept-bg: linear-gradient(135deg, #66b3ff 0%, #357abd 100%);
+		--accept-hover: linear-gradient(135deg, #3a7bc8 0%, #2868a6 100%);
+		--accept-shadow: rgba(102, 179, 255, 0.3);
+		--cancel-bg: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+		--cancel-hover: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+		--cancel-shadow: rgba(189, 195, 199, 0.3);
+		--close-hover: #66b3ff;
+	}
+}
+
 body {
-	background-color: #f0f0f0;
+	background: linear-gradient(135deg, #f6f8fa 0%, #e9ecef 100%);
 	box-sizing: border-box;
 	font-family: Arial, sans-serif;
 	margin: 0;
@@ -8,222 +47,574 @@ body {
 
 .container {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 20px;
-	margin: 0 auto;
-	max-width: 1800px;
+	max-width: 35em;
 }
 
-.settings {
-	justify-items: center;
-	display: flex;
-	justify-content: space-between;
-}
 
-.left-panel,
-.right-panel {
-	flex: 1;
-	padding: 4em;
-	background-color: white;
-	border-radius: 8px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
+/* PANEL IZQUIERDO FIJO Y ESTILIZADO */
 .left-panel {
-	flex: 2;
-	min-width: 500px;
+	align-content: center;
+	position: fixed;
+	width: 38.4em;
+	top: 3.4vh;
+	right: 5em;
+	height: 89vh;
+	background: rgba(255, 255, 255, 0.95);
+	border-radius: 15px;
+	box-shadow: 6px 6px 20px rgba(0, 0, 0, 0.15);
+	padding: 1em;
+
+	/* Permite la interacción con el formulario */
+	z-index: 1000;
+	/* Asegura que esté visible y clickeable */
+	pointer-events: auto;
+	/* Permite que los inputs sean interactivos */
 }
 
-.right-panel {
-	flex: 1;
-	min-width: 300px;
-}
 
-#separacion {
-	display: flex;
-	gap: 3px;
-}
-
-h1,
-h2,
-h3 {
-	color: #2c3e50;
-	margin-bottom: 20px;
-}
-
-#currentDate {
-	font-family: Arial, sans-serif;
-	font-size: 14px;
-	color: #333;
-	background-color: #f0f0f0;
-	padding: 5px 10px;
-	border-radius: 5px;
+.left-panel p {
 	display: inline-block;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	margin-left: 1em;
+	font-size: 1em;
+	font-weight: bold;
+	color: white;
+	background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+	padding: 10px 20px;
+	border-radius: 8px;
+	text-align: center;
+	text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+
 }
 
-#products {
-	display: grid;
-	gap: 10px;
-	margin: 20px 0;
-}
-
-#orderForm {
-	gap: 15px;
-	margin-bottom: 20px;
-}
-
-input,
-select,
-button {
-	padding: 8px 12px;
-	border: 1px solid #ddd;
-	border-radius: 4px;
-	font-size: 1.1em;
-}
-
-input[type="number"] {
-	width: 100px;
-}
-
-table {
-	width: 100%;
-	border-collapse: collapse;
-	margin-bottom: 15px;
-}
-
-th,
-td {
-	border: 1px solid #ddd;
-	padding: 8px;
-	text-align: left;
-}
-
-th {
-	background-color: #f8f9fa;
-}
-
-.action-buttons,
-.vale-range {
+#completeValeNumber {
 	display: flex;
-	gap: 10px;
-	margin-bottom: 15px;
-	flex-wrap: wrap;
+	flex-direction: column;
 	align-items: center;
 }
 
+#completeValeButton {
+	display: inline-block;
+	/* Hace que el fondo se ajuste al texto */
+	font-size: 0.7em;
+	/* Tamaño más compacto */
+	font-weight: bold;
+	color: white;
+	/* Texto en blanco para contraste */
+	background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+	/* Gradiente naranja */
+	padding: 10px 20px;
+	/* Espaciado interno para que parezca un botón */
+	border-radius: 8px;
+	/* Bordes redondeados */
+	text-align: center;
+	text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+	/* Sombra en el texto */
+
+}
+
+.right-panel {
+	left: 5em;
+	height: 89vh;
+	border-radius: 15px;
+	padding: 2em;
+	z-index: 1000;
+	display: flex;
+	gap: 3em;
+	max-width: 35em;
+	align-items: flex-start;
+	flex-direction: column;
+	transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+}
+
+/* Opcional: Si quieres que aparezca cuando el usuario pase el mouse */
+.left-panel:hover {
+	z-index: 1000;
+	/* Lo trae al frente cuando el usuario interactúa */
+}
+
+/* Ajuste del contenido principal para evitar que se solape con el panel */
+.content {
+
+	/* Deja espacio para el panel izquierdo */
+	padding: 20px;
+}
+
+/* TITULOS Y FORMULARIO */
+h1,
+h2,
+h3 {
+	font-size: 42.7px;
+	font-weight: bold;
+	text-align: center;
+	padding: 1em;
+	padding-bottom: 0;
+	margin-bottom: 0;
+	background: linear-gradient(135deg, #2c3e50 0%, #ff7e5f 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	display: inline-block;
+}
+
+
+#orderForm {
+	max-width: 600px;
+	margin: 0 auto;
+	padding: 20px;
+	background: rgba(255, 255, 255, 0.98);
+	border-radius: 12px;
+	box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ESTILO MEJORADO DE CONFIGURACIONES */
+.settings {
+	display: flex;
+	grid-template-columns: 1fr;
+	gap: 15px;
+	align-items: flex-end;
+	flex-wrap: wrap;
+}
+
+.settings>div {
+	background-color: white;
+	padding: 15px;
+	border-radius: 10px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	transition: transform 0.2s ease;
+}
+
+.settings>div:hover {
+	transform: translateY(-3px);
+}
+
+/* PRODUCTOS */
+#products {
+	display: flex;
+	justify-content: space-between;
+	margin-top: 20px;
+}
+
+/* ORDENES */
 #orderList {
 	display: grid;
 	gap: 15px;
+	width: 45em;
+	justify-items: center;
 }
 
 .order-item {
+	text-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+	align-items: center;
 	background-color: #fff;
 	border: 1px solid #e2e8f0;
 	padding: 15px;
-	border-radius: 5px;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	border-radius: 10px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	transition: all 0.3s ease;
 }
 
+.order-item:hover {
+	transform: translateY(-5px);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* COLORES SEGÚN MÉTODO DE PAGO CON GRADIENTES ESTILO GAMER */
 .order-item.efectivo {
+	box-shadow: 0 5px 15px rgba(68, 255, 124, 0.4);
+	background: linear-gradient(135deg, rgba(46, 204, 113, 0.8) 0%, rgba(0, 255, 150, 0.8) 100%);
 	color: white;
-	background: rgb(68, 196, 68);
-	background: linear-gradient(90deg, rgba(68, 196, 68, 1) 37%, rgba(255, 255, 255, 1) 100%);
 }
 
 .order-item.daviplata {
-	background: linear-gradient(90deg, #ff3333 37%, rgba(255, 255, 255, 1) 100%);
+	box-shadow: 0 5px 15px rgba(255, 50, 50, 0.4);
+	background: linear-gradient(135deg, rgba(255, 99, 99, 0.8) 0%, rgba(255, 0, 102, 0.8) 100%);
 	color: white;
 }
 
 .order-item.nequi {
-	background: linear-gradient(90deg, #7c1c7d 37%, rgba(255, 255, 255, 1) 100%);
+	box-shadow: 0 5px 15px rgba(150, 50, 255, 0.4);
+	background: linear-gradient(135deg, rgba(142, 68, 255, 0.8) 0%, rgba(200, 100, 255, 0.8) 100%);
 	color: white;
 }
 
 .order-item.qr {
-	background-color: #000000;
+	box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+	background: linear-gradient(135deg, rgba(44, 62, 80, 0.8) 0%, rgba(0, 180, 255, 0.8) 100%);
 	color: white;
-	border-color: #333333;
-	background: linear-gradient(90deg, #000000 37%, rgba(255, 255, 255, 1) 100%);
 }
 
 .order-item.tarjeta {
-	background-color: #ffd700;
+	box-shadow: 0 5px 15px rgba(255, 255, 50, 0.4);
+	background: linear-gradient(135deg, rgba(255, 215, 0, 0.8) 0%, rgba(255, 255, 100, 0.8) 100%);
 	color: black;
-	border-color: #ffea00;
 }
 
-.order-item ul li {
-	background-color: #9ddf9d;
-	margin-bottom: 5px;
-	padding: 5px;
-	border-radius: 3px;
-	color: #000;
+/* EFECTO DE NEÓN EN EL TEXTO PARA DAR MÁS ESTILO GAMER */
+.order-item {
+	text-shadow: 0px 0px 8px rgba(255, 255, 255, 0.6);
 }
 
+/* ================== MODAL ESTÁNDAR ================== */
 .modal {
 	display: none;
 	position: fixed;
-	z-index: 1;
+	z-index: 1050;
 	left: 0;
 	top: 0;
 	width: 100%;
 	height: 100%;
 	overflow: auto;
-	background-color: rgba(0, 0, 0, 0.4);
+	background-color: rgba(0, 0, 0, 0.5);
 }
 
+/* CONTENIDO DEL MODAL */
 .modal-content {
-	background-color: #fefefe;
-	margin: 15% auto;
-	padding: 20px;
-	border: 1px solid #888;
-	width: 80%;
-	scroll-behavior: smooth;
+	margin: 5% auto;
+	padding: 3em;
+	width: 50%;
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+	transform: translateY(-20px);
+	opacity: 0;
+	transition: all 0.3s ease-in-out;
+
+	/* Soporte para tema claro y oscuro */
+	background: var(--modal-bg);
+	color: var(--modal-text);
+	border: 1px solid var(--modal-border);
 }
 
-.modal-content h2 {
-	color: #2c3e50;
-	margin-bottom: 20px;
+/* CUANDO EL MODAL ESTÁ VISIBLE */
+.modal.show .modal-content {
+	transform: translateY(0);
+	opacity: 1;
 }
 
-.modal-content input[type="number"] {
-	width: calc(100% - 120px);
+/* ================== INPUTS ================== */
+.modal-content input[type="number"],
+.modal-content input[type="text"] {
+	width: 100%;
+	padding: 12px;
+	margin-bottom: 15px;
+	background: var(--input-bg);
+	border: 1px solid var(--input-border);
+	color: var(--modal-text);
+	border-radius: 6px;
+	font-size: 16px;
+	transition: all 0.3s ease-in-out;
+}
+
+/* EFECTO CUANDO EL INPUT ESTÁ ACTIVO */
+.modal-content input:focus {
+	outline: none;
+	border-color: var(--input-focus);
+	box-shadow: 0 0 5px var(--input-shadow);
+}
+
+/* ================== BOTONES ================== */
+.modal-content .button-group {
+	display: flex;
+	justify-content: center;
+	gap: 15px;
 }
 
 .modal-content button {
-	background-color: #4a5568;
+	flex: 1;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: bold;
+	transition: all 0.3s ease-in-out;
 }
 
-.modal-content button:hover {
-	background-color: #2d3748;
+/* Botón de aceptar */
+.modal-content .accept-button {
+	background: var(--accept-bg);
+	color: white;
 }
 
+.modal-content .accept-button:hover {
+	background: var(--accept-hover);
+	box-shadow: 0 4px 8px var(--accept-shadow);
+}
+
+/* Botón de cancelar */
+.modal-content .cancel-button {
+	background: var(--cancel-bg);
+	color: white;
+}
+
+.modal-content .cancel-button:hover {
+	background: var(--cancel-hover);
+	box-shadow: 0 4px 8px var(--cancel-shadow);
+}
+
+/* ================== BOTÓN DE CERRAR ================== */
 .close {
 	float: right;
 	font-size: 28px;
 	font-weight: bold;
 	cursor: pointer;
+	color: var(--modal-text);
+	transition: color 0.3s ease-in-out;
 }
 
-.daily-counter {
+.close:hover {
+	color: var(--close-hover);
+}
+
+/* ================== MODAL DE SABORES ================== */
+#flavorModal {
+	display: none;
+	/* Se oculta hasta que se active */
+	position: fixed;
+	z-index: 2000;
+	/* Asegura que esté por encima de otros elementos */
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* CONTENIDO DEL MODAL */
+#flavorModal .modal-content {
+	margin: 5% auto;
+	padding: 20px;
+	width: 50%;
+	max-width: 600px;
+	border-radius: 10px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+	background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+	color: #2c3e50;
+	transform: translateY(-20px);
+	opacity: 0;
+	transition: all 0.3s ease-in-out;
+}
+
+/* CUANDO EL MODAL ESTÁ ABIERTO */
+#flavorModal.show .modal-content {
+	transform: translateY(0);
+	opacity: 1;
+}
+
+/* LISTA DE SABORES */
+#pizzaFlavorList,
+#drinkList,
+#pizzaPriceList {
+	list-style: none;
+	padding: 0;
+	margin: 10px 0;
+}
+
+/* ELEMENTOS DE LA LISTA */
+#pizzaFlavorList li,
+#drinkList li,
+#pizzaPriceList li {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 8px;
+	margin-bottom: 5px;
+	background-color: #f8f9fa;
+	border-radius: 4px;
+	transition: background 0.3s ease-in-out;
+}
+
+/* EFECTO AL PASAR EL MOUSE */
+#pizzaFlavorList li:hover,
+#drinkList li:hover,
+#pizzaPriceList li:hover {
+	background-color: #e3e4e6;
+}
+
+/* INPUTS DENTRO DEL MODAL */
+#flavorManager input {
+	margin: 5px 0;
+	padding: 8px;
+	width: 100%;
+	border: 1px solid #ccc;
+	border-radius: 5px;
+}
+
+/* BOTONES DENTRO DEL MODAL */
+#flavorManager button {
+	margin: 5px;
+	padding: 10px 15px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+	color: white;
+	transition: background 0.3s ease-in-out;
+}
+
+/* EFECTO AL PASAR EL MOUSE EN BOTONES */
+#flavorManager button:hover {
+	background: linear-gradient(135deg, #2980b9 0%, #1c6690 100%);
+}
+
+/* BOTÓN DE CERRAR */
+#flavorModal .close {
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	cursor: pointer;
+	color: #2c3e50;
+	transition: color 0.3s ease-in-out;
+}
+
+#flavorModal .close:hover {
+	color: #3498db;
+}
+
+
+/* CONTENEDOR FIJO PARA FECHA Y CONTADOR */
+.date-counter {
 	position: fixed;
 	top: 20px;
 	right: 20px;
-	background-color: #4a5568;
-	color: white;
-	padding: 10px 15px;
-	border-radius: 5px;
+	display: flex;
+	align-items: center;
+	gap: 15px;
+	/* Espacio entre la fecha y el contador */
+	font-size: 14px;
 	font-weight: bold;
-	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	color: white;
+	background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+	padding: 10px 20px;
+	border-radius: 10px;
+	text-align: center;
+	text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+	/* SE MANTIENE ENCIMA DE TODO Y NO INTERACTÚA CON ANIMACIONES */
+	z-index: 9999;
+	/* Nivel más alto para que esté por encima */
+	pointer-events: none;
+	/* Evita que interactúe con clics o animaciones */
+}
+
+/* ESTILO PARA LA FECHA */
+#currentDate {
+	font-size: 14px;
+	background: rgba(255, 255, 255, 0.2);
+	padding: 5px 10px;
+	border-radius: 5px;
+}
+
+/* ESTILO PARA EL CONTADOR */
+#dailyCounter {
+	font-size: 14px;
+	background: rgba(255, 255, 255, 0.2);
+	padding: 5px 10px;
+	border-radius: 5px;
+}
+
+/* MODAL CONTENT */
+/* Estilo del modal */
+.modal-content {
+	background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+	margin: 5% auto;
+	padding: 3em;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	width: 50%;
+	color: white;
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+	transform: translateY(-20px);
+	opacity: 0;
+	transition: all 0.3s ease-in-out;
+}
+
+/* Cuando el modal está visible */
+.modal.show .modal-content {
+	transform: translateY(0);
+	opacity: 1;
+}
+
+/* INPUTS DENTRO DEL MODAL */
+.modal-content input[type="number"] {
+	width: 100%;
+	padding: 12px;
+	margin-bottom: 15px;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	color: white;
+	border-radius: 6px;
+	font-size: 16px;
+	transition: all 0.3s ease-in-out;
+}
+
+/* Efecto cuando el input está activo */
+.modal-content input[type="number"]:focus {
+	outline: none;
+	border-color: #4a90e2;
+	box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+/* ESTILOS PARA LOS BOTONES DENTRO DEL MODAL */
+.modal-content .button-group {
+	display: flex;
+	justify-content: center;
+	gap: 15px;
+}
+
+.modal-content button {
+	flex: 1;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 16px;
+	font-weight: bold;
+	transition: all 0.3s ease-in-out;
+}
+
+/* Botón de aceptar con gradiente */
+.modal-content .accept-button {
+	background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+	color: white;
+}
+
+.modal-content .accept-button:hover {
+	background: linear-gradient(135deg, #3a7bc8 0%, #2868a6 100%);
+	box-shadow: 0 4px 8px rgba(74, 144, 226, 0.3);
+}
+
+/* Botón de cancelar con un tono más oscuro */
+.modal-content .cancel-button {
+	background: linear-gradient(135deg, #7f8c8d 0%, #95a5a6 100%);
+	color: white;
+}
+
+.modal-content .cancel-button:hover {
+	background: linear-gradient(135deg, #95a5a6 0%, #bdc3c7 100%);
+	box-shadow: 0 4px 8px rgba(189, 195, 199, 0.3);
+}
+
+/* BOTÓN DE CERRAR */
+.close {
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	cursor: pointer;
+	color: white;
+	transition: color 0.3s ease-in-out;
+}
+
+.close:hover {
+	color: #4a90e2;
 }
 
 .status-button {
 	padding: 5px 10px;
 	border-radius: 3px;
-	font-size: 12px;
-	margin-right: 5px;
+	font-size: 14px;
+	/* Aumentado de 12px */
+	margin: 5px 8px;
 }
 
 .status-button.pending {
@@ -262,15 +653,30 @@ th {
 	color: #155724;
 }
 
-button {
-	background-color: #4a5568;
+.button {
+	flex: 1;
+	margin: 0 5px;
+	padding: 10px 15px;
+	border-radius: 8px;
+	border: none;
+
+	/* Gradiente que combina azul oscuro con naranja */
+	background: linear-gradient(135deg, #2c3e50 0%, #ff7e5f 100%);
+
+	/* Texto en blanco */
 	color: white;
+
 	cursor: pointer;
-	transition: background-color 0.3s;
+
+	/* Transición suave en el fondo y la sombra */
+	transition: background 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-button:hover {
-	background-color: #2d3748;
+/* Efecto al pasar el mouse */
+.button:hover {
+	background: linear-gradient(135deg, #34495e 0%, #ff9966 100%);
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+	/* Efecto de elevación */
 }
 
 .delete-button,
@@ -343,47 +749,6 @@ button:hover {
 	background-color: #004085;
 }
 
-/* Flavor Manager Styles */
-#flavorManager {
-	padding: 20px;
-}
-
-#flavorManager h3 {
-	margin-top: 20px;
-	padding-bottom: 10px;
-	border-bottom: 1px solid #eee;
-}
-
-#pizzaFlavorList,
-#drinkList,
-#pizzaPriceList {
-	list-style: none;
-	padding: 0;
-	margin: 10px 0;
-}
-
-#pizzaFlavorList li,
-#drinkList li,
-#pizzaPriceList li {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 8px;
-	margin-bottom: 5px;
-	background-color: #f8f9fa;
-	border-radius: 4px;
-}
-
-#flavorManager input {
-	margin: 5px 0;
-	padding: 8px;
-}
-
-#flavorManager button {
-	margin: 5px;
-	padding: 5px 10px;
-}
-
 @media (max-width: 1024px) {
 
 	.left-panel,
@@ -394,6 +759,10 @@ button:hover {
 }
 
 @media (max-width: 768px) {
+	.left-panel {
+		left: 0;
+	}
+
 	body {
 		padding: 10px;
 	}
@@ -422,9 +791,6 @@ button:hover {
 	opacity: 0.7;
 }
 
-#flavorModal .modal-content {
-	margin: 5% auto;
-}
 
 #payments {
 	display: flex;
@@ -478,4 +844,200 @@ button:hover {
 
 .close-button:hover {
 	background-color: #c53030;
+}
+
+/* ======= SIDEBAR ======= */
+/* Sidebar oculto por defecto */
+/* Estilos del Sidebar - Agregar a tu archivo styles.css */
+
+/* Contenedor principal del sidebar */
+.sidebar {
+	position: fixed;
+	top: 0;
+	left: -300px;
+	width: 300px;
+	height: 100%;
+	background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+	transition: all 0.3s ease-in-out;
+	z-index: 1000;
+	overflow-y: auto;
+	box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+	color: white;
+}
+
+.sidebar.open {
+	left: 0;
+	box-shadow: 4px 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Botón de toggle del sidebar */
+.sidebarToggle {
+	position: fixed;
+	top: 20px;
+	left: 20px;
+	z-index: 1001;
+	background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+	color: white;
+	border: none;
+	padding: 12px 15px;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 1.2em;
+	transition: all 0.3s ease;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.sidebarToggle:hover {
+	background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+	transform: scale(1.05);
+	box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Contenido del sidebar */
+.sidebar-content {
+	padding: 20px;
+	margin-top: 40px;
+}
+
+.sidebar-content h2 {
+	color: white;
+	font-size: 1.5em;
+	margin-bottom: 30px;
+	padding-bottom: 10px;
+	border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+	text-align: center;
+}
+
+/* Secciones del sidebar */
+.sidebar-section {
+	margin-bottom: 30px;
+	padding: 15px;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 10px;
+}
+
+.sidebar-section h3 {
+	color: #ecf0f1;
+	font-size: 1.1em;
+	margin-bottom: 15px;
+	padding-bottom: 8px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Botones del sidebar */
+.sidebar-button {
+	width: 100%;
+	padding: 12px;
+	margin-bottom: 10px;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+	color: white;
+	font-size: 0.9em;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 10px;
+}
+
+.sidebar-button:hover {
+	background: rgba(255, 255, 255, 0.2);
+	transform: translateX(5px);
+}
+
+.sidebar-button.danger {
+	background: rgba(231, 76, 60, 0.2);
+}
+
+.sidebar-button.danger:hover {
+	background: rgba(231, 76, 60, 0.3);
+}
+
+.button-icon {
+	font-size: 1.2em;
+}
+
+/* Grupos de inputs */
+.input-group {
+	margin-bottom: 15px;
+}
+
+.input-group label {
+	display: block;
+	margin-bottom: 5px;
+	color: #ecf0f1;
+	font-size: 0.9em;
+}
+
+.input-group input {
+	width: 100%;
+	padding: 8px;
+	background: rgba(255, 255, 255, 0.1);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 6px;
+	color: white;
+	font-size: 0.9em;
+}
+
+.input-group input:focus {
+	outline: none;
+	border-color: rgba(255, 255, 255, 0.3);
+	background: rgba(255, 255, 255, 0.15);
+}
+
+/* Ajustes del contenido principal */
+.content {
+	transition: margin-left 0.3s ease-in-out;
+}
+
+.content.sidebar-open {
+	margin-left: 300px;
+}
+
+/* Panel derecho */
+.right-panel {
+	transition: opacity 0.3s ease-in-out;
+}
+
+.right-panel.hidden {
+	opacity: 0;
+	pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.sidebar {
+		width: 85%;
+		transform: translateX(-100%);
+	}
+
+	.sidebar.open {
+		transform: translateX(0);
+	}
+
+	.left-panel {
+		width: 95%;
+		right: 2.5%;
+	}
+
+}
+
+/* Scrollbar personalizado para el sidebar */
+.sidebar::-webkit-scrollbar {
+	width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.3);
 }
